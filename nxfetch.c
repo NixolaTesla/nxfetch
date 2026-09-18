@@ -22,6 +22,7 @@ int nicee = 0;
 int nicee1 = 0;
 char cpu[256];
 char *part = "lsblk";
+char distro[256];
 
 int main(int argc, char *argv[]){
 
@@ -39,6 +40,21 @@ int main(int argc, char *argv[]){
      perror("statvfs");
      return 1;
   }
+
+
+  FILE *fpos = fopen("/etc/os-release", "r");
+
+  if(fpos != NULL){
+	while(fgets(buffer, sizeof(buffer), fpos)){
+	    if(sscanf(buffer, "NAME=\"%255[^\"]\"", distro) == 1){
+		int nicer;
+	    }	    
+	}
+  }
+
+  fclose(fpos);
+
+  printf("\nOS: %s", distro);
 
   printf("\nKernel: %s\n", sys_info.sysname);
   printf("Hostname: %s\n", sys_info.nodename); 
@@ -68,6 +84,20 @@ int main(int argc, char *argv[]){
 
   printf("Memory: %.1f GB / %.1f GB\n", used_gb, total_gb);
 
+  double uptime;
+
+  FILE *fpup = fopen("/proc/uptime", "r");
+
+  if(fpup != NULL){
+	fscanf(fpup, "%lf", &uptime);
+	fclose(fpup);
+	int days = uptime / 86400;
+	int hours = ((int)uptime % 86400) / 3600;
+	int minutes = ((int)uptime % 3600) / 60;
+
+	printf("Uptime: %d days, %d hours, %d minutes\n", days, hours, minutes);
+  }
+
   FILE *fp2 = fopen("/proc/cpuinfo", "r");
 
   if(fp2 != NULL){
@@ -93,5 +123,6 @@ int main(int argc, char *argv[]){
   }
 
   printf("\n");
+
   return 0;
 }
